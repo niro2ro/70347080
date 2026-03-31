@@ -1,7 +1,7 @@
-import os
 from typing import List, Dict, Optional
 import anthropic
 
+from services.config import get_api_key
 from services.stock_data import get_stock_history, TICKER_NAMES
 from services.technical import (
     calculate_rsi, get_trend, get_rsi_status,
@@ -62,9 +62,9 @@ def chat(
     ticker: Optional[str] = None,
 ) -> str:
     """Claude に対してチャット形式で問い合わせ"""
-    api_key = os.getenv("CLAUDE_API_KEY")
+    api_key = get_api_key()
     if not api_key:
-        return "⚠️ APIキーが設定されていません。.envファイルに CLAUDE_API_KEY を設定してください。"
+        return "⚠️ APIキーが設定されていません。Streamlit secrets または .env ファイルに ANTHROPIC_API_KEY を設定してください。"
 
     system = SYSTEM_PROMPT
     if ticker:

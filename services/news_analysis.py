@@ -13,7 +13,6 @@ Claude API で感情分析してスクリーニングスコアに統合するエ
 """
 
 import json
-import os
 import re
 import urllib.parse
 from typing import Optional
@@ -21,6 +20,8 @@ from typing import Optional
 import anthropic
 import streamlit as st
 import yfinance as yf
+
+from services.config import get_api_key
 
 # feedparser はオプション依存（なくても RSS 以外で動作）
 try:
@@ -77,7 +78,7 @@ def enhance_with_ai(screening_results: list, mode: str) -> list:
          final_score, sentiment_score, confidence, summary}
         final_score 降順でソート済み
     """
-    api_key = os.getenv("CLAUDE_API_KEY")
+    api_key = get_api_key()
     if not api_key:
         return _fallback_no_api(screening_results)
 
@@ -254,9 +255,9 @@ def _analyze_with_claude(
         return _parse_claude_json(raw_text)
 
     except anthropic.AuthenticationError:
-        return _neutral_result("APIキーエラー")
+        return _neutral_result("APIキーが無効です")
     except anthropic.RateLimitError:
-        return _neutral_result("レート制限")
+        return _neutral_result("レート制限に達しました")
     except Exception:
         return _neutral_result("API呼び出し失敗")
 
